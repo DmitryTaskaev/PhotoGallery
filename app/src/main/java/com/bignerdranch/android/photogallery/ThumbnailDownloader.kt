@@ -34,7 +34,15 @@ class ThumbnailDownloader<in T>(private val responseHandler: Handler, private va
     val viewLifecycleObserver: LifecycleObserver =
         object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            /*
             fun clearQueue() {
+                Log.i(TAG, "Clearing all requests from queue")
+                requestHandler.removeMessages(MESSAGE_DOWNLOAD)
+                requestMap.clear()
+            }
+
+             */
+            fun tearDown() {
                 Log.i(TAG, "Clearing all requests from queue")
                 requestHandler.removeMessages(MESSAGE_DOWNLOAD)
                 requestMap.clear()
@@ -61,8 +69,6 @@ class ThumbnailDownloader<in T>(private val responseHandler: Handler, private va
             }
         }
     }
-
-
     override fun quit(): Boolean {
         hasQuit = true
         return super.quit()
@@ -72,7 +78,10 @@ class ThumbnailDownloader<in T>(private val responseHandler: Handler, private va
         Log.i(TAG, "Got a URL: $url")
         requestMap[target] = url
         requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target).sendToTarget()
-
+    }
+    fun clearQueue() {
+        requestHandler.removeMessages(MESSAGE_DOWNLOAD)
+        requestMap.clear()
     }
     private fun handleRequest(target: T) {
         val url = requestMap[target] ?: return
